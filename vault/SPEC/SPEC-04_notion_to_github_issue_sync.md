@@ -16,24 +16,42 @@
 - 本番環境への常時デプロイ
 
 ## 手順
-1. `tools/notion_sync/README.md` にイベント1専用のI/O契約を明記する。
-2. 最小CLI雛形（例: `plan_sync.sh` or `sync_stub.md`）を追加し、入力JSON -> 予定アクション出力を確認可能にする。
-3. GitHub Issue更新の疑似手順（dry-run）を定義する。
-4. 手動テスト手順を `vault/RUN/` 用に定義する。
-5. エラー時の扱い（リトライ、障害ログ）を明記する。
+1. `tools/notion_sync/README.md` のイベント1 I/O契約に以下を必須記載する。
+- TaskKey必須（欠落は `error` 差戻し、create禁止）
+- 冪等性（`taskkey:*` label 検索 -> hitでupdate、missでcreate）
+- TaskKey埋め込み箇所（title prefix / label / body）
+- Notion -> GitHub 更新許可フィールド範囲
+2. dry-run 検証シナリオを定義する。
+- 同一TaskKeyを2回投入: `create -> update`
+- TaskKey欠落投入: `error` かつ createなし
+3. dry-run 結果の必須出力項目を定義する（`task_key`, `operation`, `reason`, `matched_issue`）。
+4. 運用ログ手順を `vault/RUN/` 向けに整備する。
+5. エラー時の扱い（再試行、障害ログ、差戻し条件）を明記する。
 
 ## 受入基準（コマンドで検証可能）
-1. イベント1のI/O定義が存在すること。
-- コマンド: `rg -n "Notion Task|GitHub Issue|Input Event|Output Action|idempotency" tools/notion_sync/README.md`
-- 期待結果: イベント1向け定義がヒットする。
+1. I/O契約の必須項目が README に存在すること。
+- コマンド: `rg -n "TaskKey必須|冪等性|title prefix|Issue Label|Issue Body|更新許可フィールド|検索クエリテンプレート|正規表現" tools/notion_sync/README.md`
+- 期待結果: 必須契約5要素がヒットする。
 
-2. 最小雛形が dry-run できること。
-- コマンド: `test -f tools/notion_sync/README.md && rg -n "dry-run|retry|Execution State" tools/notion_sync/README.md`
-- 期待結果: dry-run と再試行方針の記述が確認できる。
+2. 同一TaskKey 2回投入で `create -> update` を検証できること（dry-run仕様）。
+- コマンド: `rg -n "同一TaskKeyを2回|create -> update|operation=create|operation=update" tools/notion_sync/README.md`
+- 期待結果: 2段階挙動の検証シナリオと期待結果がヒットする。
 
-3. 運用ログ手順があること。
+3. TaskKey欠落で `error` かつ createしないことを検証できること。
+- コマンド: `rg -n "TaskKey欠落|operation=error|createは発生しない|差戻し" tools/notion_sync/README.md`
+- 期待結果: 欠落時エラー仕様と create禁止がヒットする。
+
+4. Notion -> GitHub 更新対象フィールド一覧が列挙されていること。
+- コマンド: `rg -n "更新してよい|更新しない|issue.title|issue.body|issue.labels|priority|due|owner" tools/notion_sync/README.md`
+- 期待結果: 更新許可/禁止フィールドが明示されている。
+
+5. 運用ログ手順があること。
 - コマンド: `rg -n "vault/RUN|同期障害|再試行" docs/SYNC_POLICY.md tools/notion_sync/README.md`
 - 期待結果: RUN記録と障害時運用の記述がヒットする。
+
+6. label厳密形式と検索クエリ例がREADMEに列挙されていること。
+- コマンド: `rg -n "^\\s*- 正規表現: `\\^taskkey:TSK-\\[0-9\\]\\{8\\}-\\[0-9\\]\\{4\\}\\$`|repo:<owner>/<repo> is:issue label:taskkey:" tools/notion_sync/README.md`
+- 期待結果: label形式の正規表現と Issue検索クエリテンプレがヒットする。
 
 ## 生成物
 - `tools/notion_sync/README.md`（更新）
@@ -53,3 +71,5 @@
 
 ## 未決事項
 - Notion API rate limit 到達時の待機戦略（固定待機か指数バックオフか）。
+- Issue検索のフォールバック戦略（label検索失敗時に title/body 検索を許可するか）。
+- エラー分類基準（validation/auth/rate_limit/network/conflict）の分類と再試行可否。
