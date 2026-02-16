@@ -49,3 +49,14 @@
 - Deliverable は必ず `GitHub Canonical Link` を持つ。
 - FAQ/軽メモ以外は Canonical Link 必須。
 - Notion本文を正本にする場合は `Record Type=FAQ` かつ理由を `Summary` に明記。
+
+## 追記: Knowledge索引ルール（SPEC-05）
+- `SPEC/RUN` 単位を正本とし、`Knowledge` は索引として運用する。
+- `Knowledge` レコードの必須運用項目:
+  - `Record Type`（SPEC or RUN）
+  - `GitHub Canonical Link`
+  - `Summary`
+  - `Status`
+  - `Owner`
+  - `Last Sync`
+- PR は `Knowledge` 本体ではなく関連リンクとして扱う。

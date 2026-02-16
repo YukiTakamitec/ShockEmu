@@ -52,3 +52,17 @@
 - 連携失敗はリトライ（指数バックオフ）。
 - 永続失敗は `vault/RUN/` へ同期障害ログを出力。
 - 不整合検知時は自動修復せず、`docs/DECISIONS.md` の検討事項へ送る。
+
+## 追記: Knowledge 手動索引運用（SPEC-05）
+- 正本単位は `SPEC/RUN` とする。
+- Notion `Knowledge` は索引として運用し、以下を更新する。
+  - `Record Type`（SPEC or RUN）
+  - `GitHub Canonical Link`
+  - `Summary`
+  - `Status`
+  - `Owner`
+  - `Last Sync`
+- PR は `Knowledge` 本体ではなく関連リンクとして扱う。
+- 将来自動化対象:
+  - イベント2（PR作成/更新 -> Knowledge更新）
+  - イベント3（PR merge/CI失敗 -> Task.Execution State更新）
