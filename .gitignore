@@ -212,3 +212,4 @@ mapKeys.h
 
 # Ignore nested duplicated repository tree
 ShockEmu/
+codex-design-bootstrap.bundle
