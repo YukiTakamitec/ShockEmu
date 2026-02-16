@@ -1,0 +1,11 @@
+{
+  "event_type": "notion.task.updated",
+  "source": "notion",
+  "source_id": "notion-task-002",
+  "timestamp_utc": "2026-02-17T00:01:00Z",
+  "payload": {
+    "title": "Missing task key case",
+    "summary": "Should return error and avoid create"
+  }
+}
+

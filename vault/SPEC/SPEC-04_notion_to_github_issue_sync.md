@@ -34,12 +34,12 @@
 - 期待結果: 必須契約5要素がヒットする。
 
 2. 同一TaskKey 2回投入で `create -> update` を検証できること（dry-run仕様）。
-- コマンド: `rg -n "同一TaskKeyを2回|create -> update|operation=create|operation=update" tools/notion_sync/README.md`
-- 期待結果: 2段階挙動の検証シナリオと期待結果がヒットする。
+- コマンド: `python3 tools/notion_sync/event1_dry_run.py --reset-state --event tools/notion_sync/examples/event_with_taskkey.json > /tmp/event1_run1.json && python3 tools/notion_sync/event1_dry_run.py --event tools/notion_sync/examples/event_with_taskkey.json > /tmp/event1_run2.json && rg -n '"operation": "create"' /tmp/event1_run1.json && rg -n '"operation": "update"' /tmp/event1_run2.json`
+- 期待結果: 1回目が create、2回目が update になる。
 
 3. TaskKey欠落で `error` かつ createしないことを検証できること。
-- コマンド: `rg -n "TaskKey欠落|operation=error|createは発生しない|差戻し" tools/notion_sync/README.md`
-- 期待結果: 欠落時エラー仕様と create禁止がヒットする。
+- コマンド: `python3 tools/notion_sync/event1_dry_run.py --event tools/notion_sync/examples/event_missing_taskkey.json > /tmp/event1_missing.json || true; rg -n '"operation": "error"' /tmp/event1_missing.json && ! rg -n '"operation": "create"' /tmp/event1_missing.json`
+- 期待結果: operation が error で、create は出力されない。
 
 4. Notion -> GitHub 更新対象フィールド一覧が列挙されていること。
 - コマンド: `rg -n "更新してよい|更新しない|issue.title|issue.body|issue.labels|priority|due|owner" tools/notion_sync/README.md`

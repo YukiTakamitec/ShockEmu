@@ -110,6 +110,33 @@ TaskKey 欠落時:
   - `reason`（error時）
   - `matched_issue`（update時）
 
+## 実行方法（最小実装）
+### 実行ファイル
+- `tools/notion_sync/event1_dry_run.py`
+
+### 例: 同一TaskKeyを2回（create -> update）
+1. 1回目（state初期化）
+```bash
+python3 tools/notion_sync/event1_dry_run.py \
+  --reset-state \
+  --event tools/notion_sync/examples/event_with_taskkey.json \
+  > /tmp/event1_run1.json
+```
+
+2. 2回目（同じTaskKey）
+```bash
+python3 tools/notion_sync/event1_dry_run.py \
+  --event tools/notion_sync/examples/event_with_taskkey.json \
+  > /tmp/event1_run2.json
+```
+
+### 例: TaskKey欠落（error）
+```bash
+python3 tools/notion_sync/event1_dry_run.py \
+  --event tools/notion_sync/examples/event_missing_taskkey.json \
+  > /tmp/event1_missing.json || true
+```
+
 ## 同期ルール
 - Priority/Due/Owner は Notion only。
 - PR状態/CI結果/RUN は GitHub only。
