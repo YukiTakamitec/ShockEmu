@@ -42,3 +42,29 @@
 - 同一フィールドを双方向同時更新しない。
 - 不明点は断言しない。`docs/DECISIONS.md` に未決論点として記録する。
 - ルール変更は必ずファイル差分で残す。
+
+## CI判定契約（hard fail / warning）
+### hard fail（PRを止める）
+- 明確な secret 漏洩:
+  - `.env` 実ファイルの混入（`.env.example` は除く）
+  - 秘密鍵ブロック（`BEGIN ... PRIVATE KEY`）
+  - 典型キー形式（例: `AKIA...`）
+- 単ファイルサイズが 10MB を超過。
+
+### warning（ログ通知のみ。PRは止めない）
+- 外部リンク切れ（ネットワーク要因を含むため初期は non-blocking）
+- 軽微な markdownlint 指摘
+
+### blocking 方針
+- 内部リンク切れは hard fail。
+- 外部リンク切れは warning とし、ログで追跡する。
+
+## secret false positive 例外手続き
+- allowlist 保存先: `docs/security/secret_allowlist.yml`
+- 必須記載: `fingerprint`, `reason`, `scope`, `approved_by`, `approved_at`, `expires_at`
+- 承認者: `Owner` と `QA-01` の2者承認（両方必須）
+- 期限: 既定 30 日、期限超過は自動失効扱い
+
+## サイズ例外ルール
+- 10MB超ファイルの例外は原則なし。
+- 例外が必要な場合は、先に `docs/DECISIONS.md` で承認し、分割・圧縮・外部保管方針を定義してから実施する。
