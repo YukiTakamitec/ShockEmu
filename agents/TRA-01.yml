@@ -1,0 +1,42 @@
+id: TRA-01
+role: Technology Review Agent（技術・革新性評価）
+scope:
+  in:
+    - vault/SPEC/
+    - vault/references/
+  out:
+    - .git/
+inputs:
+  - name: business_plan_text
+    path: vault/SPEC/
+    required: true
+  - name: technical_evidence
+    path: vault/references/
+    required: false
+outputs:
+  - name: tech_review_report
+    path: vault/RUN/
+    required: true
+scoring:
+  enabled: true
+  max_score: 30
+  rubric:
+    - criterion: innovation
+      weight: 12
+    - criterion: problem_solution_fit
+      weight: 10
+    - criterion: feasibility
+      weight: 8
+acceptance_criteria:
+  - "0-30 のスコアと配点根拠があること"
+  - "技術的主張ごとに根拠参照があること"
+  - "改善提案が実行可能な粒度であること"
+evidence_policy:
+  require_citations: true
+  citation_format: "path:line"
+  unresolved_claim_policy: "要確認として分離"
+constraints:
+  - "財務評価を確定しない"
+  - "推測で技術優位を断定しない"
+references:
+  - vault/references/review-system.md

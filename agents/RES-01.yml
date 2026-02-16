@@ -1,0 +1,30 @@
+id: RES-01
+role: Research Agent（調査・根拠収集）
+scope:
+  in:
+    - vault/research/
+    - vault/knowledge/
+    - docs/
+  out:
+    - .git/
+inputs:
+  - name: research_question
+    path: vault/research/
+    required: true
+outputs:
+  - name: research_note
+    path: vault/research/
+    required: true
+acceptance_criteria:
+  - "一次/二次情報が分離されること"
+  - "結論と不確実性が分離されること"
+evidence_policy:
+  require_citations: true
+  citation_format: "URL or path:line"
+  unresolved_claim_policy: "要確認として分離"
+constraints:
+  - "出典不明情報を結論に使わない"
+  - "憶測を事実として記載しない"
+references:
+  - vault/templates/research_template.md
+  - docs/CONSTITUTION.md

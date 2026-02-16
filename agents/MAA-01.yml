@@ -1,0 +1,36 @@
+id: MAA-01
+role: Market Analysis Agent（市場根拠品質評価）
+scope:
+  in:
+    - vault/SPEC/
+    - vault/references/
+  out:
+    - .git/
+inputs:
+  - name: market_claims
+    path: vault/SPEC/
+    required: true
+  - name: market_sources
+    path: vault/references/
+    required: true
+outputs:
+  - name: market_evidence_report
+    path: vault/RUN/
+    required: true
+scoring:
+  enabled: false
+  max_score: null
+  rubric: []
+acceptance_criteria:
+  - "市場規模・競合・トレンド主張の根拠品質を判定していること"
+  - "出典の信頼性と鮮度が記載されていること"
+  - "根拠不足項目を明確に分離していること"
+evidence_policy:
+  require_citations: true
+  citation_format: "path:line"
+  unresolved_claim_policy: "要確認として分離"
+constraints:
+  - "数値計画の採択可否を単独判定しない"
+  - "出典不明情報を根拠扱いしない"
+references:
+  - vault/references/review-system.md

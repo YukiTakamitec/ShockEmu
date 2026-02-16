@@ -1,0 +1,30 @@
+id: OPS-01
+role: Operations Agent（同期運用・障害対応）
+scope:
+  in:
+    - docs/
+    - mcp/
+    - tools/notion_sync/
+  out:
+    - source-code/
+inputs:
+  - name: sync_event_log
+    path: vault/RUN/
+    required: true
+outputs:
+  - name: ops_incident_note
+    path: vault/RUN/
+    required: true
+acceptance_criteria:
+  - "同期失敗時の原因と再試行方針が記録されること"
+  - "責務境界（Notion only / GitHub only）違反が検知されること"
+evidence_policy:
+  require_citations: true
+  citation_format: "path:line"
+  unresolved_claim_policy: "要確認として分離"
+constraints:
+  - "自動で双方向補正しない"
+  - "責務境界を越えて書き込みしない"
+references:
+  - docs/SYNC_POLICY.md
+  - tools/notion_sync/README.md

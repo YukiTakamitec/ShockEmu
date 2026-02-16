@@ -1,0 +1,74 @@
+name: Docs Quality
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - master
+
+jobs:
+  markdownlint:
+    name: Markdown Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: markdownlint
+        uses: DavidAnson/markdownlint-cli2-action@v17
+        with:
+          globs: |
+            **/*.md
+            !ShockEmu/**
+
+  link-check:
+    name: Link Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Internal/External link check
+        uses: lycheeverse/lychee-action@v2
+        with:
+          args: >-
+            --verbose
+            --no-progress
+            --exclude-mail
+            --timeout 20
+            --max-retries 3
+            --accept 200,429
+            './**/*.md'
+
+  secret-scan:
+    name: Secret Scan (Simple)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  file-size-guard:
+    name: File Size Guard
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Fail on oversized files (>10MB)
+        run: |
+          set -e
+          oversized=$(find . -type f -size +10M \
+            ! -path './.git/*' \
+            ! -path './ShockEmu/*')
+          if [ -n "$oversized" ]; then
+            echo "Oversized files detected:"
+            echo "$oversized"
+            exit 1
+          fi
+          echo "No oversized files detected."

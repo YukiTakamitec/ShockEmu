@@ -1,0 +1,30 @@
+id: ORCH-00
+role: Orchestrator Agent（司令・分配）
+scope:
+  in:
+    - vault/SPEC/
+    - docs/
+    - agents/
+  out:
+    - source-code/
+inputs:
+  - name: task_request
+    path: vault/SPEC/
+    required: true
+outputs:
+  - name: execution_plan
+    path: vault/SPEC/
+    required: true
+acceptance_criteria:
+  - "担当エージェントと順序が明示されること"
+  - "変更範囲 OK/NG がディレクトリ単位で定義されること"
+evidence_policy:
+  require_citations: true
+  citation_format: "path:line"
+  unresolved_claim_policy: "要確認として分離"
+constraints:
+  - "実装変更を直接行わない"
+  - "未定事項を断言しない"
+references:
+  - docs/CONSTITUTION.md
+  - docs/SYNC_POLICY.md

@@ -1,0 +1,36 @@
+id: CVA-01
+role: Consistency Verification Agent（整合性検証）
+scope:
+  in:
+    - vault/RUN/
+    - vault/SPEC/
+  out:
+    - .git/
+inputs:
+  - name: phase1_reports
+    path: vault/RUN/
+    required: true
+  - name: source_documents
+    path: vault/SPEC/
+    required: true
+outputs:
+  - name: consistency_ticket_report
+    path: vault/RUN/
+    required: true
+scoring:
+  enabled: false
+  max_score: null
+  rubric: []
+acceptance_criteria:
+  - "論理整合・数値整合・記載品質の検証結果があること"
+  - "エージェント間矛盾をチケット化していること"
+  - "severity と required_fix を付与していること"
+evidence_policy:
+  require_citations: true
+  citation_format: "path:line"
+  unresolved_claim_policy: "要確認として分離"
+constraints:
+  - "新規採点を行わない"
+  - "未確認矛盾を解消済み扱いしない"
+references:
+  - vault/references/review-system.md

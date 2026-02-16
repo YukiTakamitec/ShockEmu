@@ -1,0 +1,38 @@
+id: ECA-01
+role: Eligibility Check Agent（適格性ゲート）
+scope:
+  in:
+    - vault/SPEC/
+    - vault/references/
+    - vault/RUN/
+  out:
+    - source-code/
+    - .git/
+inputs:
+  - name: application_plan
+    path: vault/SPEC/
+    required: true
+  - name: guidelines
+    path: vault/references/
+    required: true
+outputs:
+  - name: eligibility_decision
+    path: vault/RUN/
+    required: true
+scoring:
+  enabled: false
+  max_score: null
+  rubric: []
+acceptance_criteria:
+  - "Pass/Fail 判定と理由があること"
+  - "不適格事由・申請枠・事業定義・設備投資・基本要件の各チェック結果があること"
+  - "Fail 時は以降停止を明記すること"
+evidence_policy:
+  require_citations: true
+  citation_format: "path:line"
+  unresolved_claim_policy: "要確認として分離"
+constraints:
+  - "Phase 0 の判定以外を確定しない"
+  - "推測で適格判定をしない"
+references:
+  - vault/references/review-system.md

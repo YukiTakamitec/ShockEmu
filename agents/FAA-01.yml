@@ -1,0 +1,42 @@
+id: FAA-01
+role: Financial Assessment Agent（財務・要件数値評価）
+scope:
+  in:
+    - vault/SPEC/
+    - vault/references/
+  out:
+    - .git/
+inputs:
+  - name: financial_plan
+    path: vault/SPEC/
+    required: true
+  - name: requirement_rules
+    path: vault/references/
+    required: true
+outputs:
+  - name: financial_review_report
+    path: vault/RUN/
+    required: true
+scoring:
+  enabled: true
+  max_score: 15
+  rubric:
+    - criterion: value_added_and_wage_requirements
+      weight: 7
+    - criterion: investment_recovery_plan
+      weight: 5
+    - criterion: document_spreadsheet_consistency
+      weight: 3
+acceptance_criteria:
+  - "0-15 のスコアと算定理由があること"
+  - "付加価値・賃金・回収計画の検証結果があること"
+  - "本文と数値表の整合チェック結果があること"
+evidence_policy:
+  require_citations: true
+  citation_format: "path:line"
+  unresolved_claim_policy: "要確認として分離"
+constraints:
+  - "市場性・技術性を単独確定しない"
+  - "根拠不明の成長率を採用しない"
+references:
+  - vault/references/review-system.md
