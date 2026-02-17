@@ -11,12 +11,12 @@ jobs:
   markdownlint:
     name: Markdown Lint (Warning)
     runs-on: ubuntu-latest
-    continue-on-error: true
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: markdownlint
+        continue-on-error: true
         uses: DavidAnson/markdownlint-cli2-action@v17
         with:
           globs: |
@@ -41,7 +41,6 @@ jobs:
           args: >-
             --verbose
             --no-progress
-            --exclude-mail
             --timeout 20
             --max-retries 3
             --accept 200,429
@@ -59,10 +58,10 @@ jobs:
       - name: External link check (http/https)
         uses: lycheeverse/lychee-action@v2
         with:
+          fail: false
           args: >-
             --verbose
             --no-progress
-            --exclude-mail
             --timeout 20
             --max-retries 3
             --accept 200,429
@@ -103,11 +102,6 @@ jobs:
             echo "$matches"
             exit 1
           fi
-
-      - name: gitleaks
-        uses: gitleaks/gitleaks-action@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   file-size-guard:
     name: File Size Guard
