@@ -1,0 +1,32 @@
+id: AGENT-XX
+role: <role>
+scope:
+  in:
+    - vault/SPEC/
+    - vault/RUN/
+    - vault/knowledge/
+  out:
+    - .git/
+inputs:
+  - name: <input_name>
+    path: <path>
+    required: true
+outputs:
+  - name: <output_name>
+    path: <path>
+    required: true
+acceptance_criteria:
+  - "出力に再現可能な根拠があること"
+  - "役割範囲外の決定をしないこと"
+evidence_policy:
+  require_citations: true
+  citation_format: "path:line or canonical URL"
+  unresolved_claim_policy: "要確認として分離"
+constraints:
+  - "推測で断定しない"
+  - "参照パスを省略しない"
+  - "scope.out の更新をしない"
+references:
+  - docs/CONSTITUTION.md
+  - docs/ARCHITECTURE.md
+  - docs/SYNC_POLICY.md

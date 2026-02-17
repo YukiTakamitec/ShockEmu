@@ -1,0 +1,136 @@
+name: Docs Quality
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - master
+
+jobs:
+  markdownlint:
+    name: Markdown Lint (Warning)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: markdownlint
+        continue-on-error: true
+        uses: DavidAnson/markdownlint-cli2-action@v17
+        with:
+          globs: |
+            **/*.md
+            !ShockEmu/**
+
+      - name: Summarize markdownlint policy
+        if: always()
+        run: |
+          echo "Markdownlint is warning-only in current phase." >> "$GITHUB_STEP_SUMMARY"
+
+  link-check-internal:
+    name: Link Check Internal (Hard Fail)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Internal link check (file scheme)
+        uses: lycheeverse/lychee-action@v2
+        with:
+          args: >-
+            --verbose
+            --no-progress
+            --timeout 20
+            --max-retries 3
+            --accept 200,429
+            --scheme file
+            './**/*.md'
+
+  link-check-external:
+    name: Link Check External (Warning)
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: External link check (http/https)
+        uses: lycheeverse/lychee-action@v2
+        with:
+          fail: false
+          args: >-
+            --verbose
+            --no-progress
+            --timeout 20
+            --max-retries 3
+            --accept 200,429
+            --scheme http
+            --scheme https
+            './**/*.md'
+
+      - name: Summarize external link policy
+        if: always()
+        run: |
+          echo "External link failures are warning-only in current phase." >> "$GITHUB_STEP_SUMMARY"
+
+  secret-scan:
+    name: Secret Scan (Hard Fail)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Block committed .env files
+        run: |
+          set -e
+          bad_env=$(git ls-files | grep -E '(^|/)\.env$' || true)
+          if [ -n "$bad_env" ]; then
+            echo "Forbidden .env files detected:"
+            echo "$bad_env"
+            exit 1
+          fi
+
+      - name: Block private keys and typical key patterns
+        run: |
+          set -e
+          # Clear-key patterns only. False positives should be handled by documented allowlist procedure.
+          matches=$(rg -n --hidden --glob '!.git/*' --glob '!ShockEmu/**' \
+            '(BEGIN [A-Z ]*PRIVATE KEY|AKIA[0-9A-Z]{16})' . || true)
+          if [ -n "$matches" ]; then
+            echo "Potential secret patterns detected:"
+            echo "$matches"
+            exit 1
+          fi
+
+  file-size-guard:
+    name: File Size Guard
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Fail on oversized files (>10MB)
+        run: |
+          set -e
+          oversized=$(find . -type f -size +10M \
+            ! -path './.git/*' \
+            ! -path './ShockEmu/*')
+          if [ -n "$oversized" ]; then
+            echo "Oversized files detected:"
+            echo "$oversized"
+            exit 1
+          fi
+          echo "No oversized files detected."
+
+      - name: Warn on large RUN logs (>200KB)
+        if: always()
+        run: |
+          set +e
+          large_run=$(find vault/RUN -type f -size +200k 2>/dev/null)
+          if [ -n "$large_run" ]; then
+            echo "RUN log warning (>200KB):" >> "$GITHUB_STEP_SUMMARY"
+            echo "$large_run" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "RUN log size check: no files over 200KB." >> "$GITHUB_STEP_SUMMARY"
+          fi

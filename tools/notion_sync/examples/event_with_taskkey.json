@@ -1,0 +1,15 @@
+{
+  "event_type": "notion.task.created",
+  "source": "notion",
+  "source_id": "notion-task-001",
+  "timestamp_utc": "2026-02-17T00:00:00Z",
+  "payload": {
+    "task_key": "TSK-20260217-0001",
+    "title": "Prepare sync dry-run",
+    "summary": "Validate Event 1 behavior",
+    "priority": "P1",
+    "due": "2026-02-20",
+    "owner": "alice"
+  }
+}
+

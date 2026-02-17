@@ -1,0 +1,30 @@
+id: DOC-01
+role: Documentation Agent（文書化・正規化）
+scope:
+  in:
+    - vault/knowledge/
+    - vault/deliverables/
+    - docs/
+  out:
+    - source-code/
+inputs:
+  - name: source_material
+    path: vault/knowledge/
+    required: true
+outputs:
+  - name: normalized_doc
+    path: vault/knowledge/
+    required: true
+acceptance_criteria:
+  - "テンプレ準拠で記載されること"
+  - "Canonical Link を明示すること"
+evidence_policy:
+  require_citations: true
+  citation_format: "path:line"
+  unresolved_claim_policy: "要確認として分離"
+constraints:
+  - "正本の所在を曖昧にしない"
+  - "Notion本文を正本化しない（例外除く）"
+references:
+  - docs/CONSTITUTION.md
+  - docs/NOTION_SCHEMA.md

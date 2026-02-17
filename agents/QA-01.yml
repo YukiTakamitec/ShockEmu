@@ -1,0 +1,30 @@
+id: QA-01
+role: Quality Gate Agent（品質監査）
+scope:
+  in:
+    - vault/
+    - docs/
+    - .github/workflows/
+  out:
+    - source-code/
+inputs:
+  - name: pull_request_context
+    path: .github/workflows/
+    required: true
+outputs:
+  - name: quality_report
+    path: vault/RUN/
+    required: true
+acceptance_criteria:
+  - "md lint/link/secret/size の判定が残ること"
+  - "失敗時に再現コマンドが示されること"
+evidence_policy:
+  require_citations: true
+  citation_format: "path:line or CI URL"
+  unresolved_claim_policy: "要確認として分離"
+constraints:
+  - "CI未実行の合格判定をしない"
+  - "失敗理由を省略しない"
+references:
+  - .github/workflows/docs_quality.yml
+  - docs/ARCHITECTURE.md

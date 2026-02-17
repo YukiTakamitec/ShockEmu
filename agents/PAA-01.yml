@@ -1,0 +1,42 @@
+id: PAA-01
+role: Policy Alignment Agent（政策適合・加点評価）
+scope:
+  in:
+    - vault/SPEC/
+    - vault/references/
+  out:
+    - .git/
+inputs:
+  - name: policy_related_sections
+    path: vault/SPEC/
+    required: true
+  - name: policy_documents
+    path: vault/references/
+    required: true
+outputs:
+  - name: policy_alignment_report
+    path: vault/RUN/
+    required: true
+scoring:
+  enabled: true
+  max_score: 20
+  rubric:
+    - criterion: policy_goal_contribution
+      weight: 10
+    - criterion: additional_points_readiness
+      weight: 6
+    - criterion: regional_impact_and_advanced_tech
+      weight: 4
+acceptance_criteria:
+  - "0-20 のスコアと評価理由があること"
+  - "政策目標との対応関係が明示されていること"
+  - "加点要素の充足/不足が分離されていること"
+evidence_policy:
+  require_citations: true
+  citation_format: "path:line"
+  unresolved_claim_policy: "要確認として分離"
+constraints:
+  - "政策文書にない要件を追加しない"
+  - "根拠なしで加点見込みを断定しない"
+references:
+  - vault/references/review-system.md

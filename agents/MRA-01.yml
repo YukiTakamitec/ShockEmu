@@ -1,0 +1,50 @@
+id: MRA-01
+role: Master Review Agent（統括判定）
+scope:
+  in:
+    - vault/RUN/
+    - vault/SPEC/
+    - vault/references/
+  out:
+    - .git/
+inputs:
+  - name: eligibility_result
+    path: vault/RUN/
+    required: true
+  - name: phase1_scores
+    path: vault/RUN/
+    required: true
+  - name: consistency_report
+    path: vault/RUN/
+    required: true
+outputs:
+  - name: final_decision_report
+    path: vault/RUN/
+    required: true
+scoring:
+  enabled: true
+  max_score: 100
+  rubric:
+    - criterion: TRA-01
+      weight: 30
+    - criterion: CRA-01
+      weight: 25
+    - criterion: FAA-01
+      weight: 15
+    - criterion: PAA-01
+      weight: 20
+    - criterion: CVA_consistency_penalty
+      weight: -10
+acceptance_criteria:
+  - "総合スコア(0-100)とグレード(A-E)があること"
+  - "改善優先順位が提示されていること"
+  - "Critical Failure 条件の該当有無が明示されていること"
+evidence_policy:
+  require_citations: true
+  citation_format: "path:line"
+  unresolved_claim_policy: "要確認として分離"
+constraints:
+  - "ECA Fail の場合は採点を確定しない"
+  - "CVA 未解消矛盾を無視して高評価にしない"
+references:
+  - vault/references/review-system.md

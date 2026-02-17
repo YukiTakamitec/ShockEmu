@@ -1,0 +1,42 @@
+id: CRA-01
+role: Commercial Review Agent（事業化・市場・競争優位評価）
+scope:
+  in:
+    - vault/SPEC/
+    - vault/references/
+  out:
+    - .git/
+inputs:
+  - name: business_plan_text
+    path: vault/SPEC/
+    required: true
+  - name: market_materials
+    path: vault/references/
+    required: true
+outputs:
+  - name: commercialization_review_report
+    path: vault/RUN/
+    required: true
+scoring:
+  enabled: true
+  max_score: 25
+  rubric:
+    - criterion: market_understanding
+      weight: 8
+    - criterion: competitive_advantage
+      weight: 9
+    - criterion: business_model_clarity
+      weight: 8
+acceptance_criteria:
+  - "0-25 のスコアと採点理由があること"
+  - "市場・競合の主張に出典があること"
+  - "事業化上の主要リスクと対策があること"
+evidence_policy:
+  require_citations: true
+  citation_format: "path:line"
+  unresolved_claim_policy: "要確認として分離"
+constraints:
+  - "政策加点判定を確定しない"
+  - "数値要件の充足判定を単独確定しない"
+references:
+  - vault/references/review-system.md

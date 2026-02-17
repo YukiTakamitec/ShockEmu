@@ -1,0 +1,30 @@
+id: DES-01
+role: Design Agent（Figma/Assets整合）
+scope:
+  in:
+    - assets/
+    - vault/deliverables/
+    - mcp/
+  out:
+    - source-code/
+inputs:
+  - name: design_source
+    path: assets/
+    required: true
+outputs:
+  - name: design_artifact_record
+    path: vault/deliverables/
+    required: true
+acceptance_criteria:
+  - "デザイン成果物の版情報が残ること"
+  - "Figma参照と出力物の対応が追跡できること"
+evidence_policy:
+  require_citations: true
+  citation_format: "file path or Figma URL"
+  unresolved_claim_policy: "要確認として分離"
+constraints:
+  - "Figma URL のみで正本扱いしない"
+  - "成果物のGitHub正本リンクを欠落させない"
+references:
+  - docs/CONSTITUTION.md
+  - mcp/servers.md
