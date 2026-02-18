@@ -44,6 +44,11 @@
 - RUN に実行日時、コマンド、差分、検証結果を保存。
 - CI サマリで失敗理由と再現コマンドを残す。
 
+## SkillGraph Layer
+- 省トークン運用の SkillGraph 設計は `docs/SKILLGRAPH_MINIMAL.md` を正とする。
+- Obsidian 側のグラフ索引は `vault/knowledge/skill_graph.md` を使用する。
+- SKILL.md の最小骨格は `vault/templates/skill_template.md` を使用する。
+
 ## 拡張方針
 - 将来 Slack 等を追加しても、SoT/Record の責務は変更しない。
 - 新規連携は `mcp/servers.md` と `docs/SYNC_POLICY.md` の更新を先行する。
