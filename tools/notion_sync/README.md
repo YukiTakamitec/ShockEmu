@@ -113,6 +113,7 @@ TaskKey 欠落時:
 ## 実行方法（最小実装）
 ### 実行ファイル
 - `tools/notion_sync/event1_dry_run.py`
+- `tools/notion_sync/event1_sync.py`（`--mode dry-run|live`）
 
 ### 例: 同一TaskKeyを2回（create -> update）
 1. 1回目（state初期化）
@@ -135,6 +136,33 @@ python3 tools/notion_sync/event1_dry_run.py \
 python3 tools/notion_sync/event1_dry_run.py \
   --event tools/notion_sync/examples/event_missing_taskkey.json \
   > /tmp/event1_missing.json || true
+```
+
+### 例: event1_sync.py（dry-run）
+```bash
+python3 tools/notion_sync/event1_sync.py \
+  --mode dry-run \
+  --reset-state \
+  --event tools/notion_sync/examples/event_with_taskkey.json \
+  > /tmp/e1a.json
+
+python3 tools/notion_sync/event1_sync.py \
+  --mode dry-run \
+  --event tools/notion_sync/examples/event_with_taskkey.json \
+  > /tmp/e1b.json
+```
+
+### 例: event1_sync.py（live設定確認）
+必須環境変数:
+- `GITHUB_TOKEN`
+- `GITHUB_OWNER`
+- `GITHUB_REPO`
+
+```bash
+python3 tools/notion_sync/event1_sync.py \
+  --mode live \
+  --event tools/notion_sync/examples/event_with_taskkey.json \
+  --check-config
 ```
 
 ## 同期ルール
