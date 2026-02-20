@@ -21,7 +21,7 @@
 - 同一フィールドを双方向で更新しない。
 - 片方向の更新失敗時は再試行し、逆方向で補正しない。
 
-## 最小イベント3つ（初期導入）
+## 最小イベント3つ（実装済み）
 1. Notion Task 作成/更新 -> GitHub Issue 更新
 - Trigger: Task 作成、Status/Priority/Due/Owner 変更
 - Action: Issue 作成またはタイトル/本文/ラベル更新
@@ -47,9 +47,14 @@
 - 時刻は UTC ISO8601 で保持。
 - ステータスはマッピングテーブルで正規化。
 - URL は canonical 化（PR/Issue/Blob path の正規形式）。
+- イベント契約の正本は `docs/SYNC_EVENTS.md` を参照。
 
 ## エラー処理
 - 連携失敗はリトライ（指数バックオフ）。
+- Event1/2/3 live の標準値:
+  - `max_retries=3`
+  - `backoff_base_sec=1.0`
+  - `backoff_factor=2.0`
 - 永続失敗は `vault/RUN/` へ同期障害ログを出力。
 - 不整合検知時は自動修復せず、`docs/DECISIONS.md` の検討事項へ送る。
 
@@ -63,6 +68,9 @@
   - `Owner`
   - `Last Sync`
 - PR は `Knowledge` 本体ではなく関連リンクとして扱う。
-- 将来自動化対象:
-  - イベント2（PR作成/更新 -> Knowledge更新）
-  - イベント3（PR merge/CI失敗 -> Task.Execution State更新）
+- 手動索引更新SLA:
+  - 標準: `24時間以内`
+  - クリティカル（障害/重大仕様変更）: `当日中`
+- 自動化優先順位（実装済みの運用優先度）:
+  - 優先1: イベント3（PR merge/CI失敗 -> Task.Execution State更新）
+  - 優先2: イベント2（PR作成/更新 -> Knowledge更新）

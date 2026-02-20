@@ -1,0 +1,12 @@
+{
+  "event_type": "github.pr.merged",
+  "source": "github",
+  "source_id": "pr-123",
+  "timestamp_utc": "2026-02-19T00:10:00Z",
+  "payload": {
+    "repo": "YukiTakamitec/ShockEmu",
+    "pr_number": 123,
+    "pr_url": "https://github.com/YukiTakamitec/ShockEmu/pull/123",
+    "task_key": "TSK-20260219-0002"
+  }
+}

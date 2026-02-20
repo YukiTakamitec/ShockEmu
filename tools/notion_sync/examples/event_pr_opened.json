@@ -1,0 +1,16 @@
+{
+  "event_type": "github.pr.opened",
+  "source": "github",
+  "source_id": "pr-123",
+  "timestamp_utc": "2026-02-19T00:00:00Z",
+  "payload": {
+    "repo": "YukiTakamitec/ShockEmu",
+    "pr_number": 123,
+    "pr_url": "https://github.com/YukiTakamitec/ShockEmu/pull/123",
+    "title": "feat: add event2 sync",
+    "summary": "Implements Event2 PR-to-Knowledge indexing",
+    "owner": "YukiTakamitec",
+    "task_key": "TSK-20260219-0002",
+    "source_path": "vault/RUN/20260219_023056_close_open_items.md"
+  }
+}

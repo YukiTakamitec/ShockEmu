@@ -57,6 +57,12 @@
 - `docs/SYNC_POLICY.md`
 
 ## 未決事項
-- Notion API の read対象フィールド最終一覧（不足項目の扱い）。
-- GitHub Issue body のテンプレ最終形式。
-- API rate limit 時の再試行回数とバックオフ定数。
+- 2026-02-19 決定済み:
+  - Notion入力正規化の受理キー:
+    - TaskKey: `task_key|taskKey|TaskKey`
+    - title: `title|Title|task_title|name`
+    - summary: `summary|Summary|description|Description`
+  - GitHub Issue body 形式:
+    - `TaskKey`, `SourceId`, `SyncedAtUTC`, `Summary` の固定4要素
+  - retry/backoff 標準値:
+    - `max_retries=3`, `backoff_base_sec=1.0`, `backoff_factor=2.0`

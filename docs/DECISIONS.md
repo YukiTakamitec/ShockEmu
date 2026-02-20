@@ -1,50 +1,48 @@
-# Decisions To Be Made
+# Decisions
 
-## 未決論点（断言しない事項）
+## 2026-02-19 確定事項
+1. Knowledge 索引更新SLA
+- 決定: 標準は `24時間以内`、クリティカル案件は `当日中`。
+
+2. Event2/Event3 自動化の優先順位
+- 決定: 優先1は Event3（Task.Execution State 更新）、優先2は Event2（Knowledge 更新）。
+
+3. Event1 live retry/backoff 定数
+- 決定: `max_retries=3`, `backoff_base_sec=1.0`, `backoff_factor=2.0` を標準値にする。
+
+## 2026-02-19 追加確定事項
 1. Notion API と MCP の採用優先
-- 現時点: 両方想定。
-- 決定が必要: 先行実装を API 直接連携にするか、MCP 経由に統一するか。
+- 決定: 初期実装は Notion API 直接連携を優先し、MCP は置換可能な将来経路として保持する。
 
 2. GitHub Issue/PR と Notion Task の一意キー
-- 現時点: `Task ID` / `Issue number` 併用案。
-- 決定が必要: 永続IDの主キー設計。
+- 決定: 主キーは `TaskKey(Task ID)`、Issue/PR番号は外部参照IDとして扱う。
 
 3. Knowledge の同期粒度
-- 現時点: PR 単位で Knowledge 更新。
-- 決定が必要: SPEC/RUN 単位での分割レコード運用を標準化するか。
+- 決定: `SPEC/RUN` 単位を正本とし、PRは関連リンクとして索引に紐付ける。
 
 4. GWS の対象範囲
-- 現時点: Chat 通知、Docs サマリ、Calendar 期限を候補。
-- 決定が必要: 初期フェーズでどこまで自動化するか。
+- 決定: 初期フェーズは Chat 通知のみ、Docs/Calendar は次フェーズ。
 
 5. Figma 成果物の正本化方式
-- 現時点: Export 物を `assets/` 管理、設計正本は GitHub リンク。
-- 決定が必要: `.fig` を保管するか、URL + export のみか。
+- 決定: `.fig` バイナリは保管しない。Figma URL + export成果物を正本運用。
 
 6. Secret scan ルールの厳密度
-- 現時点: 簡易スキャン。
-- 決定が必要: ブロック条件と false positive の扱い。
+- 決定: 高信頼シグネチャは hard fail、疑陽性は allowlist + 期限付き例外で管理。
 
 7. 大容量ファイル制限値
-- 現時点: 暫定で 10MB 超を失敗。
-- 決定が必要: 運用実態に合わせた閾値。
+- 決定: 単ファイル 10MB 超は失敗（例外なし）。
 
 8. Notion例外（本文正本）承認フロー
-- 現時点: FAQ/軽メモを例外許可。
-- 決定が必要: 承認者と監査方法。
+- 決定: 承認者は Repo Owner + Reviewer の2者、承認理由と期限を RUN に記録。
 
 9. Secret scan 対象範囲
-- 現時点: `.env` / 秘密鍵 / 典型キー形式を hard fail 対象。
-- 決定が必要: リポ全体走査に対する除外パスの最終ポリシー。
+- 決定: リポ全体走査を標準化し、除外は `node_modules/`, `.git/`, 生成物キャッシュのみ。
 
 10. Secret allowlist 運用
-- 現時点: `docs/security/secret_allowlist.yml` を想定。
-- 決定が必要: 承認フローの厳密化（2者承認の例外有無）と期限延長条件。
+- 決定: 2者承認必須、例外期限は30日、延長は再承認必須。
 
 11. Link check 方針
-- 現時点: 内部リンクは hard fail、外部リンクは warning。
-- 決定が必要: warning から hard fail へ移行する条件（失敗率・期間）。
+- 決定: 内部リンク hard fail を維持。外部リンクは warning を維持し、四半期ごとに失敗率をレビュー。
 
 12. サイズ例外ポリシー
-- 現時点: 単ファイル10MB超の例外なし。
-- 決定が必要: 特例を許可する場合の保管先・分割規則・承認手順。
+- 決定: 特例を許可しない。大容量成果物は分割または外部ストレージ参照で対応。

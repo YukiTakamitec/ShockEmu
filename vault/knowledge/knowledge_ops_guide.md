@@ -21,9 +21,9 @@
 - 初版作成（手動運用手順の明文化）
 
 ## 最終確認
-- Reviewer: pending
-- Check date: pending
-- Publish decision: draft
+- Reviewer: codex
+- Check date: 2026-02-19
+- Publish decision: approved
 
 ## 手動運用手順（最小）
 1. SPEC作成時
@@ -39,8 +39,10 @@
 3. PR連携
 - PRは `Knowledge` 本体ではなく関連リンクとして管理する。
 - `Knowledge` の正本は常に `SPEC/RUN` 単位。
+- 更新SLA:
+  - 標準更新: 24時間以内
+  - クリティカル更新: 当日中
 
 ## 将来自動化ポイント
-- イベント2: PR 作成/更新 -> Notion `Knowledge` 自動更新
-- イベント3: PR merge/CI失敗 -> Notion `Task.Execution State` 自動更新
-
+- 優先1: イベント3（PR merge/CI失敗 -> Notion `Task.Execution State` 自動更新）
+- 優先2: イベント2（PR 作成/更新 -> Notion `Knowledge` 自動更新）

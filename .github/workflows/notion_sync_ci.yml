@@ -1,0 +1,63 @@
+name: Notion Sync CI
+
+on:
+  pull_request:
+    paths:
+      - "tools/notion_sync/**"
+      - ".github/workflows/notion_sync_ci.yml"
+      - "docs/SYNC_EVENTS.md"
+      - "docs/LIVE_STATE_POLICY.md"
+  push:
+    branches:
+      - main
+      - master
+    paths:
+      - "tools/notion_sync/**"
+      - ".github/workflows/notion_sync_ci.yml"
+      - "docs/SYNC_EVENTS.md"
+      - "docs/LIVE_STATE_POLICY.md"
+
+jobs:
+  notion-sync-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Python compile check
+        run: |
+          python -m py_compile \
+            tools/notion_sync/event1_sync.py \
+            tools/notion_sync/event2_sync.py \
+            tools/notion_sync/event3_sync.py \
+            tools/notion_sync/tests/test_event1_live_mock.py \
+            tools/notion_sync/tests/test_event2_live_mock.py \
+            tools/notion_sync/tests/test_event3_live_mock.py
+
+      - name: Event1 dry-run regression
+        run: |
+          python tools/notion_sync/event1_sync.py --mode dry-run --reset-state --event tools/notion_sync/examples/event_with_taskkey.json > /tmp/e1a.json
+          python tools/notion_sync/event1_sync.py --mode dry-run --event tools/notion_sync/examples/event_with_taskkey.json > /tmp/e1b.json
+          python tools/notion_sync/event1_sync.py --mode dry-run --event tools/notion_sync/examples/event_missing_taskkey.json > /tmp/e1c.json || true
+          grep -n '"operation": "create"' /tmp/e1a.json
+          grep -n '"operation": "update"' /tmp/e1b.json
+          grep -n '"operation": "error"' /tmp/e1c.json
+
+      - name: Event2/3 dry-run regression
+        run: |
+          python tools/notion_sync/event2_sync.py --mode dry-run --event tools/notion_sync/examples/event_pr_opened.json > /tmp/e2.json
+          python tools/notion_sync/event3_sync.py --mode dry-run --event tools/notion_sync/examples/event_pr_merged.json > /tmp/e3.json
+          grep -n '"operation": "upsert"' /tmp/e2.json
+          grep -n '"operation": "update"' /tmp/e3.json
+
+      - name: Mock live integration tests
+        run: |
+          python tools/notion_sync/tests/test_event1_live_mock.py
+          python tools/notion_sync/tests/test_event2_live_mock.py
+          python tools/notion_sync/tests/test_event3_live_mock.py

@@ -1,11 +1,11 @@
-# Notion Sync Design (Skeleton)
+# Notion Sync Design
 
 ## 目的
 - Notion SoT と GitHub 証跡を責務分離したまま同期する。
-- 実装前にイベント・入出力・必要権限を固定する。
+- イベント1/2/3 の最小実装を維持し、I/O契約と再現可能な検証手順を固定する。
+- 契約の正本: `docs/SYNC_EVENTS.md`
 
 ## 非目的
-- 本READMEは実装コードではない。
 - 双方向で同一フィールドを同時更新しない。
 
 ## 対象イベント（最小3つ）
@@ -17,8 +17,11 @@
 ### Input Event (Event 1)
 - `event_type`: `notion.task.created` または `notion.task.updated`
 - `payload.task_key`: 必須（形式: `TSK-YYYYMMDD-####`）
+  - 互換入力: `taskKey`, `TaskKey`
 - `payload.title`: 必須
+  - 互換入力: `Title`, `task_title`, `name`
 - `payload.summary`: 任意
+  - 互換入力: `Summary`, `description`, `Description`
 - `payload.priority`, `payload.due`, `payload.owner`: 受け取っても GitHub へは反映しない（Notion only）
 
 TaskKey 欠落時:
@@ -114,6 +117,8 @@ TaskKey 欠落時:
 ### 実行ファイル
 - `tools/notion_sync/event1_dry_run.py`
 - `tools/notion_sync/event1_sync.py`（`--mode dry-run|live`）
+- `tools/notion_sync/event2_sync.py`（`--mode dry-run|live`）
+- `tools/notion_sync/event3_sync.py`（`--mode dry-run|live`）
 
 ### 例: 同一TaskKeyを2回（create -> update）
 1. 1回目（state初期化）
@@ -165,13 +170,108 @@ python3 tools/notion_sync/event1_sync.py \
   --check-config
 ```
 
+### live 実行オプション（retry/backoff）
+- `--max-retries`（default: 3）
+- `--backoff-base-sec`（default: 1.0）
+- `--backoff-factor`（default: 2.0）
+- `--github-api-base`（default: `https://api.github.com`）
+- `--live-state`（default: `tools/notion_sync/.live_state.json`）
+- live-state 運用: `docs/LIVE_STATE_POLICY.md`
+
+例:
+```bash
+python3 tools/notion_sync/event1_sync.py \
+  --mode live \
+  --event tools/notion_sync/examples/event_with_taskkey.json \
+  --max-retries 3 \
+  --backoff-base-sec 1.0 \
+  --backoff-factor 2.0
+```
+
+### live モック統合テスト（ローカル）
+```bash
+python3 tools/notion_sync/tests/test_event1_live_mock.py
+```
+- 検証内容:
+  - live `create -> update`
+  - Notion互換入力の正規化（`TaskKey`, `Title`, `Summary.rich_text`）
+  - 503 応答時の retry/backoff
+
+## Event2（PR -> Knowledge）
+### Input Event (Event 2)
+- `event_type`: `github.pr.opened|github.pr.synchronize|github.pr.reopened|github.pr.edited`
+- `payload.pr_url`（必須）
+- `payload.pr_number`, `payload.title`, `payload.summary`, `payload.repo`, `payload.task_key`（任意）
+
+### Output Action (Event 2)
+- `target`: `notion.knowledge`
+- `operation`: `upsert | create | update | error`
+- `idempotency_key`: `pr_url`
+
+### 設定（live）
+- `NOTION_TOKEN`
+- `NOTION_KNOWLEDGE_DB_ID`
+- `NOTION_KNOWLEDGE_LINK_PROPERTY`（任意、default: `GitHub Canonical Link`）
+
+### 実行例
+```bash
+python3 tools/notion_sync/event2_sync.py \
+  --mode dry-run \
+  --event tools/notion_sync/examples/event_pr_opened.json
+
+python3 tools/notion_sync/event2_sync.py \
+  --mode live \
+  --event tools/notion_sync/examples/event_pr_opened.json \
+  --check-config
+```
+
+### モック統合テスト
+```bash
+python3 tools/notion_sync/tests/test_event2_live_mock.py
+```
+
+## Event3（merge/CI失敗 -> Task.Execution State）
+### Input Event (Event 3)
+- `event_type`: `github.pr.merged|github.ci.failed`
+- `payload.task_key`（必須）
+
+### Output Action (Event 3)
+- `target`: `notion.task`
+- `operation`: `update | error`
+- `idempotency_key`: `task_key`
+
+### 設定（live）
+- `NOTION_TOKEN`
+- `NOTION_TASKS_DB_ID`
+
+### 実行例
+```bash
+python3 tools/notion_sync/event3_sync.py \
+  --mode dry-run \
+  --event tools/notion_sync/examples/event_pr_merged.json
+
+python3 tools/notion_sync/event3_sync.py \
+  --mode live \
+  --event tools/notion_sync/examples/event_pr_merged.json \
+  --check-config
+```
+
+### モック統合テスト
+```bash
+python3 tools/notion_sync/tests/test_event3_live_mock.py
+```
+
+### Event2/3 本番検証（Notion設定済み環境）
+```bash
+tools/notion_sync/verify_live_event23.sh
+```
+
+### Notion DB 項目の自動作成（不足分のみ）
+```bash
+python3 tools/notion_sync/bootstrap_notion_schema.py --mode live
+```
+
 ## 同期ルール
 - Priority/Due/Owner は Notion only。
 - PR状態/CI結果/RUN は GitHub only。
 - 失敗時は再試行し、最終失敗は RUN ログへ記録。
-
-## 将来実装の最小構成
-- `adapter_notion`（read/write）
-- `adapter_github`（read/write）
-- `normalizer`（event/action）
-- `dispatcher`（routing + retry + idempotency）
